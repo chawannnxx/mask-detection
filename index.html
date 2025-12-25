@@ -72,6 +72,14 @@
             color: white;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
+         @media (max-width: 768px) {
+    #webcam-container {
+        width: 95vw;
+        height: 95vw;
+        border-radius: 30px;
+    }
+}
+
 
         .mask { background-color: #27ae60; border: 3px solid #1e8449; }
         .no-mask { background-color: #c0392b; border: 3px solid #922b21; }
@@ -97,31 +105,38 @@
 
         let model, webcam, labelContainer, maxPredictions;
 
-        async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
+       async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
 
-            try {
-                model = await tmImage.load(modelURL, metadataURL);
-                maxPredictions = model.getTotalClasses();
+    try {
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
 
-                const flip = true; 
-                webcam = new tmImage.Webcam(300, 300, flip);
-                await webcam.setup(); 
-                await webcam.play();
-                window.requestAnimationFrame(loop);
+        const flip = true;
 
-                document.getElementById("webcam-container").innerHTML = "";
-                document.getElementById("webcam-container").appendChild(webcam.canvas);
-                labelContainer = document.getElementById("label-container");
-                labelContainer.innerHTML = ""; 
-                for (let i = 0; i < maxPredictions; i++) {
-                    labelContainer.appendChild(document.createElement("div"));
-                }
-            } catch (e) {
-                alert("เกิดข้อผิดพลาด: ตรวจสอบลิงก์ Model หรือการอนุญาตกล้องครับ");
-            }
+        // 🔥 คำนวณขนาดตามหน้าจอ (มือถือจะใหญ่ขึ้นมาก)
+        const size = Math.min(window.innerWidth * 0.9, 650);
+
+        webcam = new tmImage.Webcam(size, size, flip);
+        await webcam.setup();
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        const webcamContainer = document.getElementById("webcam-container");
+        webcamContainer.innerHTML = "";
+        webcamContainer.appendChild(webcam.canvas);
+
+        labelContainer = document.getElementById("label-container");
+        labelContainer.innerHTML = "";
+        for (let i = 0; i < maxPredictions; i++) {
+            labelContainer.appendChild(document.createElement("div"));
         }
+    } catch (e) {
+        alert("เกิดข้อผิดพลาด: ตรวจสอบลิงก์ Model หรือการอนุญาตกล้องครับ");
+    }
+}
+
 
         async function loop() {
             webcam.update();
@@ -148,6 +163,7 @@
 </body>
 
 </html>
+
 
 
 
